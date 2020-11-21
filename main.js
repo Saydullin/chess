@@ -2,7 +2,7 @@ const wrapper = document.querySelector('.wrapper'),
     chessTable = document.querySelector('.chess-table'),
     chessSquares = document.querySelectorAll('.chess-square');
 let we = 0;
-let arrayOfChess = {}, target, lastTarget = 0, lastTargetValue = 0, currentTarget = [], lastOver, eatPrompt = {}, initialSquare, prompts = [];
+let arrayOfChess = {}, order = 1, target, lastTarget = 0, lastTargetValue = 0, currentTarget = [], lastOver, eatPrompt = {}, initialSquare, prompts = [];
 
 
 const chessPathes = {
@@ -58,6 +58,7 @@ const chessPathes = {
         ]
     }
 }
+
 const setSizeTable = () => {
     const height = wrapper.clientHeight;
     const width = wrapper.clientWidth;
@@ -144,7 +145,9 @@ const delPrev = (t) => {
 const dragStart = (e) => {
     target = e.target;
     initialSquare = e.target.closest('.chess-square').dataset.location;
-    showPath(e);
+    if (Number(e.target.dataset.player) === order) {
+        showPath(e);
+    }
 };
 const dragEnter = (e) => {
     e.preventDefault();
@@ -187,6 +190,9 @@ const dragDrop = (e) => {
         eatPrompt.target.innerHTML = eatPrompt.outer;
         target.remove();
     }
+    if (prompts.length >= 1) {
+        order = order === 1 ? 2 : 1;
+    }
     prompts.forEach((i) => {
         i.classList.remove('prompt');
         i.classList.remove('eat');
@@ -196,6 +202,7 @@ const dragDrop = (e) => {
     if (lastOver && lastOver.closest('.chess-square')) {
         lastOver.closest('.chess-square').classList.remove('over');
     }
+
 }
 const showPath = (e) => {
     const ways = [],
