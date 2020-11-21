@@ -128,6 +128,12 @@ const setPlayers = () => {
         }
     }
 }
+const changeOrder = () => {
+    if (orderPlayer.flag) {
+        orderPlayer.order = orderPlayer.order === 1 ? 2 : 1;
+        orderPlayer.flag = false;
+    }
+}
 const getLocal = (targ) => {
     return targ.closest('.chess-square') ? targ.closest('.chess-square').dataset.location : '';
 }
@@ -153,35 +159,34 @@ const dragEnter = (e) => {
     e.preventDefault();
     if (e.target.classList.contains("eat") && getLocal(e.target) !== getLocal(target)) {
         arrayOfChess[initialSquare] = true;
+        arrayOfChess[getLocal(e.target)] = false;
         lastOver = e.target;
         eatPrompt.target = e.target;
         eatPrompt.outer = target.outerHTML;
         if (lastTarget !== 0 && getLocal(lastTarget) !== getLocal(e.target)) {
             currentTarget.push(lastTarget);
         }
-        arrayOfChess[getLocal(e.target)] = false;
         delPrev(currentTarget);
-        target.remove();
         lastTarget = e.target;
         lastTargetValue = target;
+        target.remove();
+        changeOrder();
     } else if (getLocal(e.target) !== getLocal(target) && arrayOfChess[getLocal(e.target)]) {
         prompts.forEach((y) => {
             if (y.dataset.location === e.target.dataset.location) {
                 e.target.classList.add('over');
                 e.target.insertAdjacentHTML("afterBegin", target.outerHTML);
-                if (orderPlayer.flag) {
-                    orderPlayer = orderPlayer === 1 ? 2 : 1;
-                }
                 arrayOfChess[initialSquare] = true;
+                arrayOfChess[getLocal(e.target)] = false;
                 lastOver = e.target;
                 if (lastTarget !== 0 && getLocal(lastTarget) !== getLocal(e.target)) {
                     currentTarget.push(lastTarget);
                 }
-                lastTarget = e.target;
-                arrayOfChess[getLocal(e.target)] = false;
                 delPrev(currentTarget);
-                target.remove();
+                lastTarget = e.target;
                 lastTargetValue = target;
+                target.remove();
+                changeOrder();
             }
         })
     }
