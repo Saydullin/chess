@@ -151,12 +151,11 @@ const dragStart = (e) => {
 };
 const dragEnter = (e) => {
     e.preventDefault();
-    if (e.target.classList.contains("eat") && getLocal(e.target) !== getLocal(target) && lastTarget !== e.target) {
+    if (e.target.classList.contains("eat") && getLocal(e.target) !== getLocal(target)) {
         arrayOfChess[initialSquare] = true;
         lastOver = e.target;
         eatPrompt.target = e.target;
         eatPrompt.outer = target.outerHTML;
-        // e.target.insertAdjacentHTML("afterBegin", target.outerHTML);
         if (lastTarget !== 0 && getLocal(lastTarget) !== getLocal(e.target)) {
             currentTarget.push(lastTarget);
         }
@@ -187,7 +186,9 @@ const dragEnter = (e) => {
 const dragOver = (e) => e.preventDefault();
 const dragDrop = (e) => {
     if (lastTarget && lastTarget.classList.contains("eat")) {
-        eatPrompt.target.innerHTML = eatPrompt.outer;
+        if (eatPrompt.target) {
+            eatPrompt.target.innerHTML = eatPrompt.outer;
+        }
         target.remove();
     }
     if (prompts.length >= 1) {
