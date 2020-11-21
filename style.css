@@ -1,0 +1,249 @@
+:root {
+  --light-theme: #CFD8DC;
+  --dark-theme: #1B110F;
+}
+*, *:before, *:after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  user-select: none;
+  -webkit-highlight-color: transparent;
+}
+body {
+  font-family: sans-serif;
+  padding: 20px;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--dark-theme);
+  color: var(--light-theme);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.wrapper {
+  height: calc(100vh - 80px);
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chess-table {
+  height: 100%;
+  width: 100%;
+  min-width: 310px;
+  min-height: 310px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  background-color: #2B1B18;
+  justify-content: space-between;
+  border-radius: 4px;
+  box-shadow: 4px 10px 40px rgba(0,0,0,0.5);
+  position: relative;
+  opacity: 0;
+  animation: show .6s forwards ease-out;
+  z-index: 10;
+}
+.chess-words {
+    cursor: pointer;
+    position: absolute;
+    top: -30px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    opacity: 0;
+    animation: cw .6s 1.5s forwards ease-out;
+}
+.words {
+    display: block;
+    width: 12.5%;
+    padding: 5px;
+    text-align: center;
+    font-size: 1em;
+}
+.chess-numbers {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: -25px;
+    height: 100%;
+    opacity: 0;
+    animation: cn 1s .4s forwards ease-out;
+}
+.numbers {
+    text-align: left;
+    height: 12.5%;
+    display: flex;
+    align-items: center;
+    transition: .5s;
+    position: relative;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 1em;
+}
+.numbers:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.chess-square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: rgba(57,73,171, .5);
+  font-size: .8em;
+  width: 12.5%;
+  height: 12.5%;
+  transition: .3s;
+  cursor: pointer;
+  position: relative;
+  z-index: 10;
+  border-radius: 2px;
+}
+.chess-square.eat:after {
+    background-color: #BC3633;
+    border-radius: 50%;
+    transition: 1s;
+}
+.chess-square.over-eat:after {
+    transition: 1s;
+    background-color: transparent;
+}
+.chess-square.prompt:before {
+    transition: .5s;
+    transform: scale(.3);
+    opacity: .7;
+}
+.chess-square.over img {
+    transition: 1s;
+    animation: see2 .7s forwards cubic-bezier(.33,.66,.77,.55);
+}
+.chess-square:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    transition: .5s;
+}
+.chess-square:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #308239;
+    transform: scale(0);
+    border-radius: 50%;
+    transition: .2s;
+    opacity: 0;
+}
+.chess-square.light:hover:after,
+.chess-square.dark:hover:after {
+  transition: .5s;
+  border-radius: 50%;
+}
+.chess-square.light:hover:after {
+  background-color: rgba(43,27,24,0.3);
+}
+.chess-square.dark:hover:after {
+  background-color: rgba(255,255,255,0.1);
+}
+.chess-square img {
+    width: 75%;
+    height: 75%;
+    object-fit: cover;
+    opacity: 0;
+    animation: see .7s forwards cubic-bezier(.33,.66,.77,.55);
+    position: relative;
+    z-index: 13;
+    cursor: grab;
+    transition: .5s;
+}
+.chess-square img:active {
+    cursor: grabbing;
+}
+.chess-square.dark {
+  background-color: #2B1B18;
+}
+.chess-square.light {
+  background-color: #A1887F;
+}
+@keyframes show {
+    0% {
+        opacity: 0;
+        transform: scale(.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+@keyframes see {
+    0% {
+        opacity: 0;
+        transform: scale(.5);
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    70% {
+        transform: scale(.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+@keyframes cn {
+    0% {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-0px);
+    }
+}
+@keyframes cw {
+    0% {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+@keyframes see2 {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    10% {
+        transform: scale(.5);
+    }
+    40% {
+        transform: scale(1);
+        opacity: .3;
+    }
+    70% {
+        transform: scale(.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: .3;
+    }
+}
