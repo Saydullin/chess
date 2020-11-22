@@ -12,8 +12,7 @@ let arrayOfChess = {},
     eatPrompt = {},
     initialSquare,
     prompts = [],
-    pawnsArr = [],
-    pawnChoosed;
+    pawnsArr = [];
 
 
 const chessPathes = {
@@ -181,9 +180,6 @@ const dragEnter = (e) => {
         lastTargetValue = target;
         target.remove();
         changeOrder();
-        if (target.dataset.character === 'pawn') {
-            pawnChoosed = e.target;
-        }
     } else if (getLocal(e.target) !== getLocal(target) && arrayOfChess[getLocal(e.target)]) {
         prompts.forEach((y) => {
             if (y.dataset.location === e.target.dataset.location) {
@@ -194,9 +190,6 @@ const dragEnter = (e) => {
                 lastOver = e.target;
                 if (lastTarget !== 0 && getLocal(lastTarget) !== getLocal(e.target)) {
                     currentTarget.push(lastTarget);
-                }
-                if (target.dataset.character === 'pawn') {
-                    pawnChoosed = e.target;
                 }
                 delPrev(currentTarget);
                 lastTarget = e.target;
@@ -227,7 +220,7 @@ const dragDrop = (e) => {
     if (lastOver && lastOver.closest('.chess-square')) {
         lastOver.closest('.chess-square').classList.remove('over');
     }
-    if (pawnChoosed === e.target.parentElement && !pawnsArr.includes(target.id)) {
+    if (target.dataset.character === 'pawn' && !pawnsArr.includes(target.id)) {
         pawnsArr.push(target.id);
     }
 }
@@ -279,7 +272,7 @@ const showPath = (e) => {
                 ways.push(arr[way]);
             }
         } else {
-            let reverse = 1, pawnSides = 0;
+            let reverse = 1, pawnSides = idx;
             if (player === '2') {
                 reverse = -1;
             }
@@ -288,19 +281,21 @@ const showPath = (e) => {
                 if (!arrayOfChess[arr[way]] && !character.canJump) {
                     break;
                 }
+                ways.push(arr[way]);
                 if (i === 0 && target.dataset.character === "pawn" && pawnsArr.includes(target.id)) {
                     pawnSides = way;
-                    ways.push(arr[way]);
                     break;
-                } else {
+                }
+                if (i === 0) {
                     pawnSides = way;
-                    ways.push(arr[way]);
                 }
             }
-            for (let u = 0; u < character.pEat.length; u++) {
-                const way = pawnSides + character.pEat[u];
-                if (arr[way]) {
-                    arrPawn.push(arr[way]);
+            if (target.dataset.character === "pawn") {
+                for (let u = 0; u < character.pEat.length; u++) {
+                    const way = pawnSides + character.pEat[u];
+                    if (arr[way]) {
+                        arrPawn.push(arr[way]);
+                    }
                 }
             }
         }
