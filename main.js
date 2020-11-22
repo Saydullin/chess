@@ -2,7 +2,17 @@ const wrapper = document.querySelector('.wrapper'),
     chessTable = document.querySelector('.chess-table'),
     chessSquares = document.querySelectorAll('.chess-square');
 let we = 0;
-let arrayOfChess = {}, orderPlayer = { order: 1, flag: false }, target, lastTarget = 0, lastTargetValue = 0, currentTarget = [], lastOver, eatPrompt = {}, initialSquare, prompts = [];
+let arrayOfChess = {},
+    orderPlayer = { order: 1, flag: false },
+    target,
+    lastTarget = 0,
+    lastTargetValue = 0,
+    currentTarget = [],
+    lastOver,
+    eatPrompt = {},
+    initialSquare,
+    prompts = [],
+    pawnsArr = [];
 
 
 const chessPathes = {
@@ -36,7 +46,8 @@ const chessPathes = {
         canJump: false,
         back: false,
         counter: 1,
-        p: [-8, -16]
+        p: [-8, -16],
+        pEat: [-1, 1]
     },
     queen: {
         isAuto: true,
@@ -197,7 +208,9 @@ const dragDrop = (e) => {
         if (eatPrompt.target) {
             eatPrompt.target.innerHTML = eatPrompt.outer;
         }
-        target.remove();
+        if (!target.closest('.chess-square')) {
+            target.remove();
+        }
     }
     prompts.forEach((i) => {
         i.classList.remove('prompt');
@@ -207,6 +220,9 @@ const dragDrop = (e) => {
 
     if (lastOver && lastOver.closest('.chess-square')) {
         lastOver.closest('.chess-square').classList.remove('over');
+    }
+    if (lastOver && target.dataset.character === "pawn" && !pawnsArr.includes(target.id)) {
+        pawnsArr.push(target.id);
     }
 
 }
@@ -257,7 +273,7 @@ const showPath = (e) => {
                 ways.push(arr[way]);
             }
         } else {
-            let reverse = 1;
+            let reverse = 1, pawnSides = 0;
             if (player === '2') {
                 reverse = -1;
             }
@@ -266,6 +282,17 @@ const showPath = (e) => {
                 if (!arrayOfChess[arr[way]] && !character.canJump) {
                     break;
                 }
+                if (i === 1 && target.dataset.character === 'pawn' && pawnsArr.includes(target.id) === false && arr[way]) {
+                    pawnSides = way;
+                    ways.push(arr[way]);
+                    break;
+                } else if ((target.dataset.character === 'pawn' && i !== 1) || target.dataset.character !== 'pawn' && arr[way]) {
+                    pawnSides = way;
+                    ways.push(arr[way]);
+                }
+            }
+            for (let u = 0; u < character.pEat.length; u++) {
+                const way = pawnSides + character.pEat[u];
                 if (arr[way]) {
                     ways.push(arr[way]);
                 }
