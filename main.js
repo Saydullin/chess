@@ -278,9 +278,6 @@ const showPath = (e) => {
             }
             for (let i = 0; i < character.p.length; i++) {
                 const way = character.p[i] * reverse + idx;
-                if (!arrayOfChess[arr[way]] && !character.canJump) {
-                    break;
-                }
                 ways.push(arr[way]);
                 if (i === 0 && target.dataset.character === "pawn" && pawnsArr.includes(target.id)) {
                     pawnSides = way;
@@ -288,6 +285,9 @@ const showPath = (e) => {
                 }
                 if (i === 0) {
                     pawnSides = way;
+                }
+                if (!arrayOfChess[arr[way]] && !character.canJump) {
+                    break;
                 }
             }
             if (target.dataset.character === "pawn") {
