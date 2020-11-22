@@ -139,6 +139,9 @@ const setPlayers = () => {
         }
     }
 }
+const random = (max) => {
+    return Math.floor(Math.random() * max);
+}
 const changeOrder = () => {
     if (orderPlayer.flag) {
         orderPlayer.order = orderPlayer.order === 1 ? 2 : 1;
@@ -321,16 +324,16 @@ const showPath = (el) => {
 }
 const bot = () => {
     const arrOfCharacters = ["pawn", "horse", "king", "queen", "bishop", "horse"];
-    const randWay = Math.floor(Math.random() * arrOfCharacters.length);
+    const randWay = random(arrOfCharacters.length);
     const findTargetFunc = () => {
-        let chessCharacter;
+        let chessCharacter, possibleMoves = [];
         for (let i = 0; i < chessSquares.length; i++) {
-            if (chessSquares[i].childNodes[0] && chessSquares[i].childNodes[0].dataset.character === arrOfCharacters[randWay]) {
-                target = chessSquares[i].childNodes[0];
-                chessCharacter = showPath(target);
-                break;
+            if (chessSquares[i].childNodes[0] && chessSquares[i].childNodes[0].dataset.player === "2" && chessSquares[i].childNodes[0].dataset.character === arrOfCharacters[randWay]) {
+                possibleMoves.push(chessSquares[i].childNodes[0]);
             }
         }
+        target = possibleMoves[random(possibleMoves.length)];
+        chessCharacter = showPath(target);
         if (chessCharacter.length === 0) {
             bot();
         }
