@@ -12,7 +12,8 @@ let arrayOfChess = {},
     eatPrompt = {},
     initialSquare,
     prompts = [],
-    pawnsArr = [];
+    pawnsArr = [],
+    pawnChoosed;
 
 
 const chessPathes = {
@@ -171,17 +172,18 @@ const dragEnter = (e) => {
     if (e.target.classList.contains("eat") && getLocal(e.target) !== getLocal(target)) {
         arrayOfChess[initialSquare] = true;
         arrayOfChess[getLocal(e.target)] = false;
-        lastOver = e.target;
-        eatPrompt.target = e.target;
         eatPrompt.outer = target.outerHTML;
         if (lastTarget !== 0 && getLocal(lastTarget) !== getLocal(e.target)) {
             currentTarget.push(lastTarget);
         }
         delPrev(currentTarget);
-        lastTarget = e.target;
+        lastOver = lastTarget = eatPrompt.target = e.target;
         lastTargetValue = target;
         target.remove();
         changeOrder();
+        if (target.dataset.character === 'pawn') {
+            pawnChoosed = e.target;
+        }
     } else if (getLocal(e.target) !== getLocal(target) && arrayOfChess[getLocal(e.target)]) {
         prompts.forEach((y) => {
             if (y.dataset.location === e.target.dataset.location) {
@@ -192,6 +194,9 @@ const dragEnter = (e) => {
                 lastOver = e.target;
                 if (lastTarget !== 0 && getLocal(lastTarget) !== getLocal(e.target)) {
                     currentTarget.push(lastTarget);
+                }
+                if (target.dataset.character === 'pawn') {
+                    pawnChoosed = e.target;
                 }
                 delPrev(currentTarget);
                 lastTarget = e.target;
@@ -215,16 +220,16 @@ const dragDrop = (e) => {
     prompts.forEach((i) => {
         i.classList.remove('prompt');
         i.classList.remove('eat');
+        i.classList.remove('can');
     })
     prompts = [];
 
     if (lastOver && lastOver.closest('.chess-square')) {
         lastOver.closest('.chess-square').classList.remove('over');
     }
-    if (lastOver && target.dataset.character === "pawn" && !pawnsArr.includes(target.id)) {
+    if (pawnChoosed === e.target.parentElement && !pawnsArr.includes(target.id)) {
         pawnsArr.push(target.id);
     }
-
 }
 const showPath = (e) => {
     const ways = [],
@@ -232,6 +237,7 @@ const showPath = (e) => {
         player = e.target.dataset.player,
         tget = e.target.closest('.chess-square').dataset.location,
         arr = ['A8', ...Object.keys(arrayOfChess)],
+        arrPawn = [],
         arrOfChess = arr.splice(arr.length - 1, 1),
         initWord = tget ? tget.match(/\D/)[0] : '',
         idx = arr.indexOf(tget),
@@ -282,11 +288,11 @@ const showPath = (e) => {
                 if (!arrayOfChess[arr[way]] && !character.canJump) {
                     break;
                 }
-                if (i === 1 && target.dataset.character === 'pawn' && pawnsArr.includes(target.id) === false && arr[way]) {
+                if (i === 0 && target.dataset.character === "pawn" && pawnsArr.includes(target.id)) {
                     pawnSides = way;
                     ways.push(arr[way]);
                     break;
-                } else if ((target.dataset.character === 'pawn' && i !== 1) || target.dataset.character !== 'pawn' && arr[way]) {
+                } else {
                     pawnSides = way;
                     ways.push(arr[way]);
                 }
@@ -294,7 +300,7 @@ const showPath = (e) => {
             for (let u = 0; u < character.pEat.length; u++) {
                 const way = pawnSides + character.pEat[u];
                 if (arr[way]) {
-                    ways.push(arr[way]);
+                    arrPawn.push(arr[way]);
                 }
             }
         }
@@ -304,7 +310,8 @@ const showPath = (e) => {
         if (ways.indexOf(i.dataset.location) !== -1 && arrayOfChess[i.dataset.location]) {
             i.classList.add('prompt');
             prompts.push(i);
-        } else if (ways.indexOf(i.dataset.location) !== -1 && !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== target.dataset.player) {
+        } else if ((ways.indexOf(i.dataset.location) !== -1 || arrPawn.indexOf(i.dataset.location) !== -1) &&
+            !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== target.dataset.player) {
             i.classList.add('eat');
             prompts.push(i);
         }
