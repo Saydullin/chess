@@ -163,7 +163,7 @@ const dragStart = (e) => {
     target = e.target;
     initialSquare = e.target.closest('.chess-square').dataset.location;
     if (Number(e.target.dataset.player) === orderPlayer.order) {
-        showPath(e);
+        showPath(e.target);
     }
 };
 const dragEnter = (e) => {
@@ -216,7 +216,7 @@ const dragDrop = (e) => {
         i.classList.remove('can');
     })
     prompts = [];
-
+    bot();
     if (lastOver && lastOver.closest('.chess-square')) {
         lastOver.closest('.chess-square').classList.remove('over');
     }
@@ -224,11 +224,11 @@ const dragDrop = (e) => {
         pawnsArr.push(target.id);
     }
 }
-const showPath = (e) => {
+const showPath = (el) => {
     const ways = [],
-        character = chessPathes[e.target.dataset.character] || '',
-        player = e.target.dataset.player,
-        tget = e.target.closest('.chess-square').dataset.location,
+        character = chessPathes[el.dataset.character] || '',
+        player = el.dataset.player,
+        tget = el.closest('.chess-square').dataset.location,
         arr = ['A8', ...Object.keys(arrayOfChess)],
         arrPawn = [],
         arrOfChess = arr.splice(arr.length - 1, 1),
@@ -248,7 +248,9 @@ const showPath = (e) => {
                     (initWord === 'H' && word === 'A' && ((character.p[i] > 0 && character.p[i] > order) || (character.p[i] < 0 && character.p[i] * -1 > 7 - order)))) {
                     break;
                 }
-                ways.push(arr[inc]);
+                if (arr[inc] && arrayOfChess[arr[inc]]) {
+                    ways.push(arr[inc]);
+                }
                 if (!arrayOfChess[arr[inc]]) {
                     break;
                 }
@@ -269,7 +271,9 @@ const showPath = (e) => {
                     }
                     way += character.p[i][f];
                 }
-                ways.push(arr[way]);
+                if (arr[way] && arrayOfChess[arr[way]]) {
+                    ways.push(arr[way]);
+                }
             }
         } else {
             let reverse = 1, pawnSides = idx;
@@ -311,6 +315,25 @@ const showPath = (e) => {
             prompts.push(i);
         }
     })
+    return ways
+}
+const bot = () => {
+    const arrOfCharacters = ["pawn", "horse", "king", "queen", "bishop", "horse"];
+    const randWay = Math.floor(Math.random() * arrOfCharacters.length);
+    const findTargetFunc = () => {
+        let chessCharacter;
+        for (let i = 0; i < chessSquares.length; i++) {
+            if (chessSquares[i].childNodes[0] && chessSquares[i].childNodes[0].dataset.character === arrOfCharacters[randWay]) {
+                target = chessSquares[i].childNodes[0];
+                chessCharacter = showPath(target);
+                break;
+            }
+        }
+        if (chessCharacter.length === 0) {
+            bot();
+        }
+    }
+    findTargetFunc();
 }
 
 document.addEventListener('dragenter', dragEnter);
@@ -318,9 +341,8 @@ document.addEventListener('dragover', dragOver);
 document.addEventListener('dragstart', dragStart);
 document.addEventListener('drop', dragDrop);
 
-
 setSizeTable();
 setColors();
 setNumbers();
 setPlayers();
-window.addEventListener('resize', setSizeTable)
+window.addEventListener('resize', setSizeTable);
