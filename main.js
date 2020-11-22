@@ -217,6 +217,8 @@ const dragDrop = (e) => {
     })
     prompts = [];
     bot();
+    orderPlayer.flag = true;
+    changeOrder();
     if (lastOver && lastOver.closest('.chess-square')) {
         lastOver.closest('.chess-square').classList.remove('over');
     }
