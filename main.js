@@ -348,7 +348,8 @@ const bot = () => {
         let chessCharacter,
             possibleMoves = [],
             isFound = false,
-            arr = [];
+            arrPrompt = [],
+            arrEat = [];
 
         chessSquares.forEach((i) => {
             if (i.childNodes[0] && i.childNodes[0].dataset.player === "2" && i.childNodes[0].dataset.character === arrOfSquares[randWay]) {
@@ -358,32 +359,50 @@ const bot = () => {
 
         if (possibleMoves.length === 0) {
             isEnd = true;
-            console.log(possibleMoves.length, isEnd, arrOfSquares, arrOfSquares[randWay], randWay);
             console.log('ИГРА ОКОНЧЕНА!');
             return false;
         }
 
         target = possibleMoves[random(possibleMoves.length)];
         chessCharacter = showPath(target);
-        for (let r = 0; r < chessCharacter.length; r++) {
-            if (arrayOfChess[chessCharacter[r]]) {
-                isFound = true;
-                arr.push(chessCharacter[r]);
+        // for (let r = 0; r < chessCharacter.length; r++) {
+        //     if (arrayOfChess[chessCharacter[r]]) {
+        //         isFound = true;
+        //         arrPrompt.push(chessCharacter[r]);
+        //     } else {
+        //         arrEat.push(chessCharacter[r]);
+        //     }
+        // }
+
+        chessSquares.forEach((i) => {
+            if (chessCharacter.includes(i.dataset.location)) {
+                if (arrayOfChess[i.dataset.location]) {
+                    isFound = true;
+                    arrPrompt.push(i.dataset.location);
+                } else if (i.classList.contains('eat')) {
+                    arrEat.push(i.dataset.location);
+                }
             }
-        }
-        if (arr.length === 0) {
+        })
+        console.log(arrEat);
+        if (arrPrompt.length === 0) {
             if (!isEnd) {
                 bot();
             }
             return false;
         }
-        const randIndex = random(arr.length);
-        const square = document.querySelector(`.chess-square[data-location="${arr[randIndex]}"]`);
         const currentTarget = target.closest('.chess-square');
-        arrayOfChess[target.closest('.chess-square').dataset.location] = true;
-        arrayOfChess[arr[randIndex]] = false;
         currentTarget.classList.add('going');
+
+        if (arrEat.length !== 0) {
+            arrPrompt = arrEat;
+        }
+        const randIndex = random(arrPrompt.length);
+        const square = document.querySelector(`.chess-square[data-location="${arrPrompt[randIndex]}"]`);
+        arrayOfChess[target.closest('.chess-square').dataset.location] = true;
+        arrayOfChess[arrPrompt[randIndex]] = false;
         setTimeout(() => {
+            square.innerHTML = "";
             square.insertAdjacentElement("afterbegin", target);
             currentTarget.classList.remove('going');
             clearPrompts();
