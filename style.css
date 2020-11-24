@@ -112,7 +112,7 @@ body {
   border-radius: 2px;
 }
 .chess-square.eat:after {
-    background-color: #BC3633;
+    background-color: #BC3633 !important;
     border-radius: 50%;
     transition: 1s;
 }

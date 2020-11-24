@@ -233,7 +233,7 @@ const dragDrop = (e) => {
         lastTarget = 0;
     }
 }
-const showPath = (el, show = true) => {
+const showPath = (el, show = true, trget = target) => {
     const ways = [],
         character = chessPathes[el.dataset.character] || '',
         player = el.dataset.player,
@@ -292,12 +292,12 @@ const showPath = (el, show = true) => {
             for (let i = 0; i < character.p.length; i++) {
                 const way = character.p[i] * reverse + idx;
                 if (arr[way]) {
-                    if (target.dataset.character === "pawn" && !arrayOfChess[arr[way]]) {
+                    if (trget.dataset.character === "pawn" && !arrayOfChess[arr[way]]) {
                         break;
                     }
                     ways.push(arr[way]);
                 }
-                if (i === 0 && target.dataset.character === "pawn" && pawnsArr.includes(target.id)) {
+                if (i === 0 && trget.dataset.character === "pawn" && pawnsArr.includes(trget.id)) {
                     pawnSides = way;
                     break;
                 }
@@ -308,7 +308,7 @@ const showPath = (el, show = true) => {
                     break;
                 }
             }
-            if (target.dataset.character === "pawn") {
+            if (trget.dataset.character === "pawn") {
                 for (let u = 0; u < character.pEat.length; u++) {
                     const way = pawnSides + character.pEat[u];
                     if (arr[way] && !arrayOfChess[arr[way]]) {
@@ -323,10 +323,10 @@ const showPath = (el, show = true) => {
             if (ways.indexOf(i.dataset.location) !== -1 && arrayOfChess[i.dataset.location]) {
                 i.classList.add('prompt');
                 prompts.push(i);
-            } else if ((ways.indexOf(i.dataset.location) !== -1 && arrPawn.indexOf(i.dataset.location) === -1) && !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== target.dataset.player) {
+            } else if ((ways.indexOf(i.dataset.location) !== -1 && arrPawn.indexOf(i.dataset.location) === -1) && !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== trget.dataset.player) {
                 i.classList.add('eat');
                 prompts.push(i);
-            } else if (arrPawn.indexOf(i.dataset.location) !== -1 && target.dataset.character === 'pawn' && !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== target.dataset.player) {
+            } else if (arrPawn.indexOf(i.dataset.location) !== -1 && trget.dataset.character === 'pawn' && !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== trget.dataset.player) {
                 i.classList.add('eat');
                 prompts.push(i);
             }
@@ -336,7 +336,7 @@ const showPath = (el, show = true) => {
             if (!arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== "2")
                 if ((ways.indexOf(i.dataset.location) !== -1 && arrPawn.indexOf(i.dataset.location) === -1)) {
                     i.classList.add('can-eat');
-                } else if (arrPawn.indexOf(i.dataset.location) !== -1 && target.dataset.character === 'pawn') {
+                } else if (arrPawn.indexOf(i.dataset.location) !== -1 && trget.dataset.character === 'pawn') {
                     i.classList.add('can-eat');
                 }
         })
@@ -345,7 +345,7 @@ const showPath = (el, show = true) => {
     return [...arrPawn, ...ways];
 }
 const bot = () => {
-    let isEnd = false;
+    let isEnd = false, botTarget;
     const secondChessPlayer = document.querySelectorAll('img[data-player="2"]');
     const arrOfSquares = [];
     const arrOfCharacters = [];
@@ -369,12 +369,6 @@ const bot = () => {
             }
         })
 
-        if (possibleMoves.length === 0) {
-            isEnd = true;
-            console.log('ИГРА ОКОНЧЕНА!');
-            return false;
-        }
-
         secondChessPlayer.forEach((el) => {
             if (el.dataset.player === "2" && el.dataset.character !== "pawn") {
                 const pathes = showPath(el, false);
@@ -386,11 +380,18 @@ const bot = () => {
                 }
             }
         })
+
+        if (possibleMoves.length === 0 && possibleEat.length === 0) {
+            isEnd = true;
+            console.log('ИГРА ОКОНЧЕНА!');
+            return false;
+        }
+
         if (possibleEat.length !== 0) {
             possibleMoves = possibleEat;
         }
-        target = possibleMoves[random(possibleMoves.length)];
-        chessCharacter = showPath(target);
+        botTarget = possibleMoves[random(possibleMoves.length)];
+        chessCharacter = showPath(botTarget, true, botTarget);
 
         chessSquares.forEach((i) => {
             if (chessCharacter.includes(i.dataset.location)) {
@@ -403,13 +404,13 @@ const bot = () => {
             }
         })
 
-        if (arrPrompt.length === 0) {
+        if (arrPrompt.length === 0 && arrEat.length === 0) {
             if (!isEnd) {
                 bot();
             }
             return false;
         }
-        const currentTarget = target.closest('.chess-square');
+        const currentTarget = botTarget.closest('.chess-square');
         currentTarget.classList.add('going');
 
         if (arrEat.length !== 0) {
@@ -417,11 +418,11 @@ const bot = () => {
         }
         const randIndex = random(arrPrompt.length);
         const square = document.querySelector(`.chess-square[data-location="${arrPrompt[randIndex]}"]`);
-        arrayOfChess[target.closest('.chess-square').dataset.location] = true;
+        arrayOfChess[botTarget.closest('.chess-square').dataset.location] = true;
         arrayOfChess[arrPrompt[randIndex]] = false;
         setTimeout(() => {
             square.innerHTML = "";
-            square.insertAdjacentElement("afterbegin", target);
+            square.insertAdjacentElement("afterbegin", botTarget);
             currentTarget.classList.remove('going');
             clearPrompts();
             orderPlayer.flag = true;
