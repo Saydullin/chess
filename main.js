@@ -6,6 +6,7 @@ let arrayOfChess = {},
     orderPlayer = { order: 1, flag: false },
     target,
     lastTarget = 0,
+    lastOver = 0,
     lastTargetValue = 0,
     currentTarget = [],
     eatPrompt = {},
@@ -155,6 +156,7 @@ const delPrev = (t) => {
         if (t[i].childNodes[0]) {
             if (t[i].childNodes[0].id === target.id) {
                 t[i].innerHTML = "";
+                t[i].classList.remove('over');
                 arrayOfChess[getLocal(t[i])] = true;
             }
         }
@@ -186,7 +188,7 @@ const dragEnter = (e) => {
             currentTarget.push(lastTarget);
         }
         delPrev(currentTarget);
-        lastTarget = eatPrompt.target = e.target;
+        lastTarget = lastOver = eatPrompt.target = e.target;
         lastTargetValue = target;
         target.remove();
     } else if (getLocal(e.target) !== getLocal(target) && arrayOfChess[getLocal(e.target)]) {
@@ -197,11 +199,11 @@ const dragEnter = (e) => {
                 e.target.insertAdjacentHTML("afterBegin", target.outerHTML);
                 arrayOfChess[initialSquare] = true;
                 arrayOfChess[getLocal(e.target)] = false;
-                if (lastTarget !== 0 && getLocal(lastTarget) !== getLocal(e.target)) {
-                    currentTarget.push(lastTarget);
+                if (lastOver !== 0 && getLocal(lastOver) !== getLocal(e.target)) {
+                    currentTarget.push(lastOver);
                 }
                 delPrev(currentTarget);
-                lastTarget = e.target;
+                lastTarget = lastOver = e.target;
                 lastTargetValue = target;
                 target.remove();
             }
@@ -219,14 +221,14 @@ const dragDrop = (e) => {
         }
     }
     clearPrompts();
-    if (lastTarget && lastTarget.closest('.chess-square')) {
-        lastTarget.closest('.chess-square').classList.remove('over');
+    if (lastOver !== 0 && lastOver.closest('.chess-square')) {
+        lastOver.closest('.chess-square').classList.remove('over');
     }
     if (lastTarget !== 0 || lastTarget === e.target.closest('.chess-square')) {
         if (target.dataset.character === 'pawn' && !pawnsArr.includes(target.id)) {
             pawnsArr.push(target.id);
         }
-        bot();
+        setTimeout(bot, 1000);
         orderPlayer.flag = true;
         changeOrder();
         lastTarget = 0;
@@ -357,18 +359,16 @@ const bot = () => {
             console.log('ИГРА ОКОНЧЕНА!');
             return false;
         }
-        if (!possibleMoves[random(possibleMoves.length)]) {
-            console.log('ERROR', possibleMoves[random(possibleMoves.length)], random(possibleMoves.length), possibleMoves.length);
-        }
+
         target = possibleMoves[random(possibleMoves.length)];
-        chessCharacter = possibleMoves.length === 0 ? [] : showPath(target);
+        chessCharacter = showPath(target);
         for (let r = 0; r < chessCharacter.length; r++) {
             if (arrayOfChess[chessCharacter[r]]) {
                 isFound = true;
                 arr.push(chessCharacter[r]);
             }
         }
-        if (arr.length === 0 || !isFound || possibleMoves.length === 0) {
+        if (arr.length === 0) {
             if (!isEnd) {
                 bot();
             }
