@@ -293,6 +293,9 @@ const showPath = (el) => {
             for (let i = 0; i < character.p.length; i++) {
                 const way = character.p[i] * reverse + idx;
                 if (arr[way]) {
+                    if (target.dataset.character === "pawn" && !arrayOfChess[arr[way]]) {
+                        break;
+                    }
                     ways.push(arr[way]);
                 }
                 if (i === 0 && target.dataset.character === "pawn" && pawnsArr.includes(target.id)) {

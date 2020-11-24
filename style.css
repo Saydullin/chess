@@ -177,6 +177,9 @@ body {
     cursor: grab;
     transition: .5s;
 }
+.chess-square img[data-player="2"] {
+    pointer-events: none;
+}
 .chess-square img:active {
     cursor: grabbing;
 }
