@@ -10,6 +10,9 @@
   user-select: none;
   -webkit-highlight-color: transparent;
 }
+html {
+    overflow: hidden;
+}
 body {
   font-family: sans-serif;
   padding: 20px;
@@ -150,14 +153,17 @@ body {
     opacity: 0;
 }
 .chess-square.light:hover:after,
-.chess-square.dark:hover:after {
+.chess-square.dark:hover:after,
+.chess-square.going:after {
   transition: .5s;
   border-radius: 50%;
 }
-.chess-square.light:hover:after {
+.chess-square.light:hover:after,
+.chess-square.light.going:after {
   background-color: rgba(43,27,24,0.3);
 }
-.chess-square.dark:hover:after {
+.chess-square.dark:hover:after,
+.chess-square.dark.going:after {
   background-color: rgba(255,255,255,0.1);
 }
 .chess-square img {
