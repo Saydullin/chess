@@ -14,7 +14,6 @@ let arrayOfChess = {},
     prompts = [],
     pawnsArr = [];
 
-
 const chessPathes = {
     rook: {
         isAuto: true,
@@ -234,7 +233,7 @@ const dragDrop = (e) => {
         lastTarget = 0;
     }
 }
-const showPath = (el) => {
+const showPath = (el, show = true) => {
     const ways = [],
         character = chessPathes[el.dataset.character] || '',
         player = el.dataset.player,
@@ -312,30 +311,42 @@ const showPath = (el) => {
             if (target.dataset.character === "pawn") {
                 for (let u = 0; u < character.pEat.length; u++) {
                     const way = pawnSides + character.pEat[u];
-                    if (arr[way]) {
+                    if (arr[way] && !arrayOfChess[arr[way]]) {
                         arrPawn.push(arr[way]);
                     }
                 }
             }
         }
     }
+    if (show) {
+        chessSquares.forEach((i) => {
+            if (ways.indexOf(i.dataset.location) !== -1 && arrayOfChess[i.dataset.location]) {
+                i.classList.add('prompt');
+                prompts.push(i);
+            } else if ((ways.indexOf(i.dataset.location) !== -1 && arrPawn.indexOf(i.dataset.location) === -1) && !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== target.dataset.player) {
+                i.classList.add('eat');
+                prompts.push(i);
+            } else if (arrPawn.indexOf(i.dataset.location) !== -1 && target.dataset.character === 'pawn' && !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== target.dataset.player) {
+                i.classList.add('eat');
+                prompts.push(i);
+            }
+        })
+    } else {
+        chessSquares.forEach((i) => {
+            if (!arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== "2")
+                if ((ways.indexOf(i.dataset.location) !== -1 && arrPawn.indexOf(i.dataset.location) === -1)) {
+                    i.classList.add('can-eat');
+                } else if (arrPawn.indexOf(i.dataset.location) !== -1 && target.dataset.character === 'pawn') {
+                    i.classList.add('can-eat');
+                }
+        })
+    }
 
-    chessSquares.forEach((i) => {
-        if (ways.indexOf(i.dataset.location) !== -1 && arrayOfChess[i.dataset.location]) {
-            i.classList.add('prompt');
-            prompts.push(i);
-        } else if ((ways.indexOf(i.dataset.location) !== -1 && arrPawn.indexOf(i.dataset.location) === -1) && !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== target.dataset.player) {
-            i.classList.add('eat');
-            prompts.push(i);
-        } else if (arrPawn.indexOf(i.dataset.location) !== -1 && target.dataset.character === 'pawn' && !arrayOfChess[i.dataset.location] && i.childNodes[0] && i.childNodes[0].dataset.player !== target.dataset.player) {
-            i.classList.add('eat');
-            prompts.push(i);
-        }
-    })
-    return ways;
+    return [...arrPawn, ...ways];
 }
 const bot = () => {
     let isEnd = false;
+    const secondChessPlayer = document.querySelectorAll('img[data-player="2"]');
     const arrOfSquares = [];
     const arrOfCharacters = [];
     chessSquares.forEach((i) => {
@@ -347,6 +358,7 @@ const bot = () => {
     const findTargetFunc = () => {
         let chessCharacter,
             possibleMoves = [],
+            possibleEat = [],
             isFound = false,
             arrPrompt = [],
             arrEat = [];
@@ -363,16 +375,22 @@ const bot = () => {
             return false;
         }
 
+        secondChessPlayer.forEach((el) => {
+            if (el.dataset.player === "2" && el.dataset.character !== "pawn") {
+                const pathes = showPath(el, false);
+                for (let p = 0; p < chessSquares.length; p++) {
+                    if (pathes.includes(chessSquares[p].dataset.location) && chessSquares[p].classList.contains('can-eat')) {
+                        possibleEat.push(el);
+                        chessSquares[p].classList.remove('can-eat');
+                    }
+                }
+            }
+        })
+        if (possibleEat.length !== 0) {
+            possibleMoves = possibleEat;
+        }
         target = possibleMoves[random(possibleMoves.length)];
         chessCharacter = showPath(target);
-        // for (let r = 0; r < chessCharacter.length; r++) {
-        //     if (arrayOfChess[chessCharacter[r]]) {
-        //         isFound = true;
-        //         arrPrompt.push(chessCharacter[r]);
-        //     } else {
-        //         arrEat.push(chessCharacter[r]);
-        //     }
-        // }
 
         chessSquares.forEach((i) => {
             if (chessCharacter.includes(i.dataset.location)) {
@@ -384,7 +402,7 @@ const bot = () => {
                 }
             }
         })
-        console.log(arrEat);
+
         if (arrPrompt.length === 0) {
             if (!isEnd) {
                 bot();
