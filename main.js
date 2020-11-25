@@ -309,8 +309,11 @@ const showPath = (el, show = true, trget = target) => {
                 }
             }
             if (trget.dataset.character === "pawn") {
+                if (arr[pawnSides] === trget.closest('.chess-square').dataset.location) {
+                    pawnSides = pawnSides - 8 * reverse;
+                }
                 for (let u = 0; u < character.pEat.length; u++) {
-                    const way = pawnSides + character.pEat[u];
+                    const way = pawnSides + character.pEat[u] * reverse;
                     if (arr[way] && !arrayOfChess[arr[way]]) {
                         arrPawn.push(arr[way]);
                     }
